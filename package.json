@@ -1,0 +1,19 @@
+{
+  "name": "chrome-multiwindow",
+  "version": "0.0.0",
+  "description": "socket.io prototype to test multi-chrome window animation",
+  "main": "app.js",
+  "devDependencies": {
+    "socket.io": "~0.9.16",
+    "express": "~3.4.4"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@bitbucket.org/allofus/coesia-wrapit-conveyor.git"
+  },
+  "author": "me@chrismullany.com"
+}
