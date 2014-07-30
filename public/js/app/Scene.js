@@ -1,10 +1,19 @@
+// scene
 var context;
 var canvas;
 var sceneId;
 var stats = new Stats();
+// blobs
 var blobs = [];
 var BLOB_COUNT = 10;
 var radius = 10;
+var colours = ['#72BC8D', '#F75A53', '#497D9D'];
+// animation
+// TODO: tweak should be dynamically calculated based on the radius and speed!
+var time = 1;
+var tweak = -0.1;
+var space = 40;
+var delay = 0.2;
 
 function initScene(sceneId_, canvasId) {
     sceneId = sceneId_;
@@ -18,11 +27,6 @@ function initScene(sceneId_, canvasId) {
     stats.domElement.style.left = '0px';
     stats.domElement.style.top = '0px';
     document.body.appendChild(stats.domElement);
-    // setup Blob objects
-    for (var i = 0; i < BLOB_COUNT; i++) {
-        var blob = new Blob(-radius * 2, 100 + (i * 100));
-        blobs.push(blob);
-    }
     // start the update loop
     update();
 }
@@ -38,8 +42,8 @@ function draw() {
     canvas.width = canvas.width;
     context.save();
     for (var i = 0; i < blobs.length; i++) {
-        var Blob = blobs[i];
-        drawCircle(Blob.x, Blob.y, radius);
+        var blob = blobs[i];
+        drawCircle(blob.x, blob.y, radius);
     }
     context.restore();
 }
@@ -47,7 +51,7 @@ function draw() {
 function drawCircle(centerX, centerY, radius) {
     context.beginPath();
     context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = '#333333';
+    context.fillStyle = colours[0];
     context.fill();
 }
 
@@ -84,53 +88,42 @@ function Blob(x, y, colour) {
     this.progress = 0;
 }
 
-// animate a load of blobs across the screen
+// animate a load of blobs across the screen!
 function createBlob() {
-    var i = 0;
-    var time = 1;
-    var tweak = -0.1;
-    var blob;
-    var space = 40;
-    // reset positions
-    for (i = 0; i < blobs.length; i++) {
-        blob = blobs[i];
-        blob.x = -radius * 2;
-        blob.y = space + (i * space);
-    }
-    // tween blobs based on scene id
-    if (sceneId == 1) {
-        for (i = 0; i < blobs.length; i++) {
-            blob = blobs[i];
+    // setup Blob objects and create tweens for them
+    for (var i = 0; i < BLOB_COUNT; i++) {
+        var starty = (space * 2) + (i * space);
+        var blob = new Blob(-radius * 2, starty);
+        blobs.push(blob);
+        // tween blobs based on scene id
+        if (sceneId == 1) {
             TweenMax.to(blob, time, {
                 x: canvas.width + (radius * 2),
                 ease: Linear.easeNone,
-                delay: i
+                delay: i * delay
             });
         }
-    } else if (sceneId == 2) {
-        for (i = 0; i < blobs.length; i++) {
-            blob = blobs[i];
+        else if (sceneId == 2) {
+            // Scene 2 requires a delay that includes the time to animate across scene 1
             TweenMax.to(blob, time, {
                 x: canvas.width + (radius * 2),
                 ease: Linear.easeNone,
-                delay: time + i + tweak
+                delay: time + (i * delay) + tweak
             });
         }
-    } else if (sceneId == 3) {
-        tweak = -0.2;
-        for (i = 0; i < blobs.length; i++) {
-            blob = blobs[i];
-            var starty = i * space;
+        else if (sceneId == 3) {
+            // Scene 3 requires a delay that includes the time to animate across scenes 1 and 2
+            // It animates using a bezier curve too!
             TweenMax.to(blob, time, {
                 bezier: [{
                     x: canvas.width * 0.5,
                     y: starty
                 }, {
                     x: canvas.width + (radius * 2) ,
-                    y: (i / blobs.length) * canvas.height
+                    y: (i / BLOB_COUNT) * canvas.height
                 }],
                 ease: Linear.easeNone,
-                delay: (time * 2) + i + tweak
+                delay: (time * 2) + (i * delay) + (tweak * 2)
             });
         }
     }
